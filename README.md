@@ -16,11 +16,11 @@ Then inside your project require and use tranquilo as early as possible
 
 ```javascript
 var express = require('express');
-var morgan = require('morgan');
+var tranquilo = require('tranquilo');
 
 var app = express();
 
-app.use(morgan('combined'));
+app.use(tranquilo);
 
 app.get('/', function (req, res) {
   res.send('hello, world!');
