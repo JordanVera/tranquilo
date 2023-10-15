@@ -4,20 +4,27 @@ Welcome to Tranquilo, the Middleware Logger for Express.js, a powerful tool to s
 
 Logging is an essential aspect of understanding your application's behavior, diagnosing issues, and monitoring performance. Our middleware logger offers a user-friendly solution that allows you to easily track request and response details, response time, and status codes.
 
-## Installation
+## Examples
 
-Install my-project with npm
+Install tranquilo with npm.
 
 ```bash
-  npm install tranquilo
+npm i tranquilo
 ```
 
-Import and use
+Then inside your project require and use tranquilo as early as possible
 
-```bash
-  const tranquilo = require("tranquilo")
+```javascript
+var express = require('express');
+var morgan = require('morgan');
 
-  app.use(tranquilo())
+var app = express();
+
+app.use(morgan('combined'));
+
+app.get('/', function (req, res) {
+  res.send('hello, world!');
+});
 ```
 
 ## Features
