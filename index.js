@@ -1,6 +1,21 @@
 const { green, yellow, red, gray } = require('chalk');
 
-const tranquilo = (req, res, next) => {
+const createTranquiloMiddleware = (format) => {
+  const tranquilo = (req, res, next) => {
+    switch (format) {
+      case 'dev':
+        return devFormat(req, res, next);
+      case 'tiny':
+        return tinyFormat(req, res, next);
+      default:
+        return devFormat(req, res, next);
+    }
+  };
+
+  return tranquilo;
+};
+
+const devFormat = (req, res, next) => {
   const start = process.hrtime();
 
   res.on('finish', () => {
@@ -30,4 +45,10 @@ const tranquilo = (req, res, next) => {
   next();
 };
 
-module.exports = tranquilo;
+const tinyFormat = (req, res, next) => {
+  console.log('tinyyyyyyyy');
+
+  next();
+};
+
+module.exports = createTranquiloMiddleware;
