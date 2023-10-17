@@ -1,54 +1,56 @@
-const { green, yellow, red, gray } = require('chalk');
+const colors = require('colors');
 
-const createTranquiloMiddleware = (format) => {
-  const tranquilo = (req, res, next) => {
-    switch (format) {
-      case 'dev':
-        return devFormat(req, res, next);
-      case 'tiny':
-        return tinyFormat(req, res, next);
-      default:
-        return devFormat(req, res, next);
-    }
+const tranquilo = (format) => {
+  const createTranquiloMiddleware = (req, res, next) => {
+    const start = process.hrtime();
+
+    res.on('finish', () => {
+      const end = process.hrtime(start);
+      const responseTime = (end[0] * 1e3 + end[1] / 1e6).toFixed(3);
+      const responseSize = res.get('Content-Length') || 0;
+      const statusCode = res.statusCode;
+
+      logRequest(req, statusCode, responseSize, responseTime, format);
+    });
+
+    next();
   };
 
-  return tranquilo;
+  return createTranquiloMiddleware;
 };
 
-const devFormat = (req, res, next) => {
-  const start = process.hrtime();
+const logRequest = (req, statusCode, responseSize, responseTime, format) => {
+  const statusCodeColored = code(statusCode, format);
+  let logMessage;
 
-  res.on('finish', () => {
-    const end = process.hrtime(start);
-    const responseTime = (end[0] * 1e3 + end[1] / 1e6).toFixed(3);
-    const responseSize = res.get('Content-Length') || 0;
-    const statusCode = res.statusCode;
+  if (format === 'america') {
+    logMessage =
+      `${req.method} ${req.url} ${statusCode} ${responseSize} - ${responseTime}ms`
+        .america;
+  }
 
-    const code = () => {
-      switch (true) {
-        case statusCode >= 200 && statusCode < 300:
-          return green(statusCode);
-        case statusCode >= 400 && statusCode < 500:
-          return yellow(statusCode);
-        case statusCode >= 500:
-          return red(statusCode);
-        default:
-          return gray('Unknown');
-      }
-    };
+  if (format === 'dev') {
+    logMessage = `${req.method} ${req.url} ${statusCodeColored} ${responseTime}ms - ${responseSize}`;
+  }
 
-    console.log(
-      `${req.method} ${req.url} ${code()} ${responseTime}ms - ${responseSize}`
-    );
-  });
+  if (format === 'tiny') {
+    logMessage = `${req.method} ${req.url} ${statusCode} ${responseSize} - ${responseTime}ms`;
+  }
 
-  next();
+  console.log(logMessage);
 };
 
-const tinyFormat = (req, res, next) => {
-  console.log('tinyyyyyyyy');
-
-  next();
+const code = (statusCode, format) => {
+  switch (true) {
+    case statusCode >= 200 && statusCode < 300:
+      return format === 'dev' ? `${statusCode}`.green : `${statusCode}`;
+    case statusCode >= 400 && statusCode < 500:
+      return format === 'dev' ? `${statusCode}`.yellow : `${statusCode}`;
+    case statusCode >= 500:
+      return format === 'dev' ? `${statusCode}`.red : `${statusCode}`;
+    default:
+      return 'Unknown';
+  }
 };
 
-module.exports = createTranquiloMiddleware;
+module.exports = tranquilo;
