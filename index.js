@@ -20,34 +20,32 @@ const tranquilo = (format) => {
 };
 
 const logRequest = (req, statusCode, responseSize, responseTime, format) => {
-  const statusCodeColored = code(statusCode, format);
+  const statusCodeColored = code(statusCode);
   let logMessage;
 
   if (format === 'america') {
     logMessage =
       `${req.method} ${req.url} ${statusCode} ${responseSize} - ${responseTime}ms`
         .america;
-  }
-
-  if (format === 'dev') {
+  } else if (format === 'dev') {
     logMessage = `${req.method} ${req.url} ${statusCodeColored} ${responseTime}ms - ${responseSize}`;
-  }
-
-  if (format === 'tiny') {
+  } else if (format === 'tiny') {
     logMessage = `${req.method} ${req.url} ${statusCode} ${responseSize} - ${responseTime}ms`;
+  } else {
+    logMessage = `${req.method} ${req.url} ${statusCodeColored} ${responseTime}ms - ${responseSize}`;
   }
 
   console.log(logMessage);
 };
 
-const code = (statusCode, format) => {
+const code = (statusCode) => {
   switch (true) {
     case statusCode >= 200 && statusCode < 300:
-      return format === 'dev' ? `${statusCode}`.green : `${statusCode}`;
+      return `${statusCode}`.green;
     case statusCode >= 400 && statusCode < 500:
-      return format === 'dev' ? `${statusCode}`.yellow : `${statusCode}`;
+      return `${statusCode}`.yellow;
     case statusCode >= 500:
-      return format === 'dev' ? `${statusCode}`.red : `${statusCode}`;
+      return `${statusCode}`.red;
     default:
       return 'Unknown';
   }
