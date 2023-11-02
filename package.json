@@ -1,6 +1,6 @@
 {
   "name": "tranquilo",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "HTTP Middleware Logger for Express.js",
   "main": "index.js",
   "scripts": {
